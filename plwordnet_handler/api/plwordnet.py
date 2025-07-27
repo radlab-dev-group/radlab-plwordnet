@@ -2,8 +2,11 @@ import networkx
 from typing import Optional, List
 
 from plwordnet_handler.structure.elems.lu import LexicalUnit
+from plwordnet_handler.structure.elems.synset import Synset
 from plwordnet_handler.structure.elems.rel_type import RelationType
+from plwordnet_handler.structure.elems.synset_relation import SynsetRelation
 from plwordnet_handler.structure.elems.lu_relations import LexicalUnitRelation
+from plwordnet_handler.structure.elems.lu_in_synset import LexicalUnitAndSynset
 
 from plwordnet_handler.api.plwordnet_i import PlWordnetAPIBase
 from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface
@@ -13,6 +16,19 @@ class PlWordnetAPI(PlWordnetAPIBase):
     """
     Main API class for Polish Wordnet operations.
     """
+
+    DELEGATED_METHODS = [
+        "connect",
+        "disconnect",
+        "is_connected",
+        "get_lexical_units",
+        "get_lexical_relations",
+        "get_synsets",
+        "get_synset_relations",
+        "get_units_and_synsets",
+        "get_relation_types",
+        "to_nx_multi_di_graph",
+    ]
 
     def __init__(
         self,
@@ -31,7 +47,7 @@ class PlWordnetAPI(PlWordnetAPIBase):
         self, limit: Optional[int] = None
     ) -> Optional[List[LexicalUnit]]:
         """
-        Get lexical units from the wordnet database.
+        Get lexical units from the wordnet connector.
 
         Args:
             limit: Optional limit for number of results
@@ -45,7 +61,7 @@ class PlWordnetAPI(PlWordnetAPIBase):
         self, limit: Optional[int] = None
     ) -> Optional[List[LexicalUnitRelation]]:
         """
-        Get lexical relations from the wordnet database.
+        Get lexical relations from the wordnet connector.
 
         Args:
             limit: Optional limit for the number of results
@@ -59,7 +75,7 @@ class PlWordnetAPI(PlWordnetAPIBase):
         self, limit: Optional[int] = None
     ) -> Optional[List[RelationType]]:
         """
-        Get relation types from the wordnet database.
+        Get relation types from the wordnet connector.
 
         Args:
             limit: Optional limit for the number of results
@@ -68,6 +84,48 @@ class PlWordnetAPI(PlWordnetAPIBase):
             List of relation types or None if an error occurred
         """
         return self.connector.get_relation_types(limit=limit)
+
+    def get_synsets(self, limit: Optional[int] = None) -> Optional[List[Synset]]:
+        """
+        Get synset from the wordnet connector.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of Synset or None if an error occurred
+        """
+
+        return self.connector.get_synsets(limit=limit)
+
+    def get_synset_relations(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[SynsetRelation]]:
+        """
+        Get synset relations from the wordnet connector.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of SynsetRelation or None if an error occurred
+        """
+
+        return self.connector.get_synset_relations(limit=limit)
+
+    def get_units_and_synsets(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[LexicalUnitAndSynset]]:
+        """
+        Get units in synset from the wordnet connector.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of LexicalUnitAndSynset or None if an error occurred
+        """
+        return self.connector.get_units_and_synsets(limit=limit)
 
     def to_nx_multi_di_graph(
         self, extract_wiki_articles: bool, limit: Optional[int] = None

@@ -8,7 +8,7 @@ from plwordnet_handler.structure.polishwordnet import PolishWordnet
 # from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
 
 DEFAULT_LOG_LEVEL = "INFO"
-DEFAULT_DB_CFG_PATH = "resources/plwordnet-mysql-db.json"
+DEFAULT_DB_CFG_PATH = "../resources/plwordnet-mysql-db.json"
 DEFAULT_NX_OUT_FILE = "resources/plwordnet-nx-multidigraph.pickle"
 
 EXAMPLE_USAGE = f"""
@@ -27,7 +27,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("plwordnet_cli.log"),
+        logging.FileHandler("../plwordnet_cli.log"),
     ],
 )
 
@@ -98,23 +98,16 @@ def dump_to_networkx_file(args) -> int:
         with PolishWordnet(
             db_config_path=args.db_config,
             extract_wiki_articles=args.extract_wikipedia_articles,
-        ) as mysql_connector:
-            logger.info("Connecting to database...")
-            mysql_connector.connect()
-
+        ) as pl_wn:
             logger.info("Converting to NetworkX MultiDiGraph...")
-            nx_graph = mysql_connector.to_nx_multi_di_graph(
+            nx_graph = pl_wn.to_nx_multi_di_graph(
                 extract_wiki_articles=args.extract_wikipedia_articles,
                 limit=args.limit,
             )
-
             # TODO: Store to args.nx_graph_file
             logger.info("Disconnecting from database...")
-            mysql_connector.disconnect()
-
         logger.info("NetworkX graph generation completed successfully")
         return 0
-
     except Exception as e:
         logger.error(f"Error during NetworkX graph generation: {e}")
         return 1

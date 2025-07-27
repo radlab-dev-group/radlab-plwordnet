@@ -35,26 +35,41 @@ class PolishWordnet:
             connector=connector, extract_wiki_articles=extract_wiki_articles
         )
 
+    def info(self):
+        print("ALA MA KOTA")
+
     def __getattr__(self, name):
         """
-        Delegate attribute access to the underlying PlWordnetAPI instance.
+        Delegate attribute access to the underlying PlWordnetAPI instance
+        or use implementation from this class.
 
         Args:
             name: Name of the attribute to access
 
         Returns:
-            The requested attribute from the PlWordnetAPI instance
+            The requested attribute from the PlWordnetAPI instance or self
         """
-        return getattr(self.api, name)
+        if name in self.api.DELEGATED_METHODS:
+            return getattr(self.api, name)
+
+        try:
+            return super().__getattribute__(name)
+        except AttributeError:
+            raise AttributeError(
+                f"'{self.__class__.__name__}' object has no attribute '{name}'"
+            )
 
     def __enter__(self):
         """
-        Context manager entry - establish connection via API.
+        Context manager entry - establish connection.
         """
-        return self.api.__enter__()
+        if self.api.connect():
+            return self
+        else:
+            raise ConnectionError("Failed to load connector")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
-        Context manager exit - close connection via API.
+        Context manager exit - close connection.
         """
-        return self.api.__exit__(exc_type, exc_val, exc_tb)
+        self.api.disconnect()
