@@ -1,8 +1,8 @@
 from typing import Optional, List
 
-from plwordnet_handler.api.data.lu import LexicalUnit
-from plwordnet_handler.api.data.rel_type import RelationType
-from plwordnet_handler.api.data.lu_relations import LexicalUnitRelation
+from plwordnet_handler.structure.elems.lu import LexicalUnit
+from plwordnet_handler.structure.elems.rel_type import RelationType
+from plwordnet_handler.structure.elems.lu_relations import LexicalUnitRelation
 
 from plwordnet_handler.api.plwordnet_i import PlWordnetAPIBase
 from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface

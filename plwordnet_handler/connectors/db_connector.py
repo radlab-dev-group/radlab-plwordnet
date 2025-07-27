@@ -4,14 +4,24 @@ import networkx
 from abc import ABC
 from typing import Optional, List, Dict, Any, Tuple
 
-from plwordnet_handler.api.data.comment import CommentParser
-from plwordnet_handler.api.data.lu import LexicalUnit, LexicalUnitMapper
-from plwordnet_handler.api.data.rel_type import RelationType, RelationTypeMapper
-from plwordnet_handler.api.data.lu_relations import (
+from plwordnet_handler.structure.elems.lu import LexicalUnit, LexicalUnitMapper
+from plwordnet_handler.structure.elems.rel_type import (
+    RelationType,
+    RelationTypeMapper,
+)
+from plwordnet_handler.structure.elems.synset import Synset, SynsetMapper
+from plwordnet_handler.structure.elems.synset_relation import (
+    SynsetRelation,
+    SynsetRelationMapper,
+)
+from plwordnet_handler.structure.elems.lu_relations import (
     LexicalUnitRelation,
     LexicalUnitRelationMapper,
 )
-
+from plwordnet_handler.structure.elems.lu_in_synset import (
+    LexicalUnitAndSynset,
+    LexicalUnitAndSynsetMapper,
+)
 from plwordnet_handler.connectors.db.config import DbSQLConfig
 from plwordnet_handler.connectors.db.mysql import MySQLDbConnection
 from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface
@@ -147,12 +157,23 @@ class _PlWordnetAPIMySQLDbConnectorQueries(_PlWordnetAPIMySQLDbConnectorBase, AB
     """
 
     LIMIT_QUERY = "LIMIT"
+    # lexical units
     GET_ALL_LU = "LEXICAL_UNITS"
     GET_ALL_LU_RELS = "LEXICAL_UNITS_RELATIONS"
+    # synsets
+    GET_ALL_SYN = "SYN_SETS"
+    GET_ALL_SYN_RELATION = "SYN_SETS_RELATIONS"
+    # lu in synset
+    GET_ALL_LU_IN_SYN = "LU_IN_SYNSET"
+    # relations
     GET_ALL_REL_TYPES = "RELATION_TYPES"
+
     Q = {
         GET_ALL_LU: "SELECT * FROM lexicalunit",
         GET_ALL_LU_RELS: "SELECT * FROM lexicalrelation",
+        GET_ALL_SYN: "SELECT * FROM synset",
+        GET_ALL_SYN_RELATION: "SELECT * FROM synsetrelation",
+        GET_ALL_LU_IN_SYN: "SELECT * FROM unitandsynset",
         GET_ALL_REL_TYPES: "SELECT * FROM relationtype",
     }
 
@@ -241,6 +262,64 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
             return None
         return LexicalUnitRelationMapper.map_from_dict_list(data_list=data_list)
 
+    def get_synsets(self, limit: Optional[int] = None) -> Optional[List[Synset]]:
+        """
+        Retrieves synsets from the database.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of Synset objects or None if no data available
+        """
+        data_list = self._execute_query_with_limit_opt(
+            query=self.Q[self.GET_ALL_SYN],
+            limit=limit,
+        )
+        if not data_list:
+            return None
+        return SynsetMapper.map_from_dict_list(data_list=data_list)
+
+    def get_synset_relations(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[SynsetRelation]]:
+        """
+        Retrieves synset relations from the database.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of SynsetRelation objects or None if no data available
+        """
+        data_list = self._execute_query_with_limit_opt(
+            query=self.Q[self.GET_ALL_SYN_RELATION],
+            limit=limit,
+        )
+        if not data_list:
+            return None
+        return SynsetRelationMapper.map_from_dict_list(data_list=data_list)
+
+    def get_units_and_synsets(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[LexicalUnitAndSynset]]:
+        """
+        Retrieves `units and synsets` from the database.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of LexicalUnitAndSynset objects or None if no data available
+        """
+        data_list = self._execute_query_with_limit_opt(
+            query=self.Q[self.GET_ALL_LU_IN_SYN],
+            limit=limit,
+        )
+        if not data_list:
+            return None
+        return LexicalUnitAndSynsetMapper.map_from_dict_list(data_list=data_list)
+
     def get_relation_types(
         self, limit: Optional[int] = None
     ) -> Optional[List[RelationType]]:
@@ -284,15 +363,29 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
 
         self.logger.info("Getting all lexical units")
         all_lu = self.get_lexical_units(limit=limit)
-        self.logger.info(f"Number of lexical units: {len(all_lu)}")
+        self.logger.info(f"  -> number of lexical units: {len(all_lu)}")
 
         self.logger.info("Getting all relation types")
         all_rel_types = self.get_relation_types(limit=limit)
-        self.logger.info(f"Number of relation types {len(all_rel_types)}")
+        self.logger.info(f"  -> number of relation types {len(all_rel_types)}")
 
         self.logger.info("Getting all lexical relations")
         all_lu_rels = self.get_lexical_relations(limit=limit)
-        self.logger.info(f"Number of lexical units relations: {len(all_lu_rels)}")
+        self.logger.info(
+            f"  -> number of lexical units relations: {len(all_lu_rels)}"
+        )
+
+        self.logger.info("Getting all synsets")
+        all_syn = self.get_synsets(limit=limit)
+        self.logger.info(f"  -> number of synsets: {len(all_syn)}")
+
+        self.logger.info("Getting all synset relations")
+        all_syn_rels = self.get_synset_relations(limit=limit)
+        self.logger.info(f"  -> number of synset relations: {len(all_syn_rels)}")
+
+        self.logger.info("Getting all units and synset")
+        all_lu_in_syn = self.get_units_and_synsets(limit=limit)
+        self.logger.info(f"  -> number of units and synsets: {len(all_lu_in_syn)}")
 
         # parser = CommentParser()
         # for lu in self.get_lexical_units(limit=1000):

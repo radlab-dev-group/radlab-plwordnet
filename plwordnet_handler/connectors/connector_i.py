@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
-from plwordnet_handler.api.data.lu import LexicalUnit
-from plwordnet_handler.api.data.rel_type import RelationType
-from plwordnet_handler.api.data.lu_relations import LexicalUnitRelation
+from plwordnet_handler.structure.elems.lu import LexicalUnit
+from plwordnet_handler.structure.elems.synset import Synset
+from plwordnet_handler.structure.elems.rel_type import RelationType
+from plwordnet_handler.structure.elems.synset_relation import SynsetRelation
+from plwordnet_handler.structure.elems.lu_in_synset import LexicalUnitAndSynset
+from plwordnet_handler.structure.elems.lu_relations import LexicalUnitRelation
 
 
 class PlWordnetConnectorInterface(ABC):
@@ -46,7 +49,7 @@ class PlWordnetConnectorInterface(ABC):
         Get lexical units
 
         Args:
-            limit: Optional limit for number of results
+            limit: Optional limit for the number of results
 
         Returns:
             List of lexical units or None if error
@@ -61,10 +64,53 @@ class PlWordnetConnectorInterface(ABC):
         Get lexical relations
 
         Args:
-            limit: Optional limit for number of results
+            limit: Optional limit for the number of results
 
         Returns:
             List of lexical relations or None if error
+        """
+        pass
+
+    @abstractmethod
+    def get_synsets(self, limit: Optional[int] = None) -> Optional[List[Synset]]:
+        """
+        Get synsets
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of Synsets or None if error
+        """
+        pass
+
+    @abstractmethod
+    def get_synset_relations(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[SynsetRelation]]:
+        """
+        Get synset relations
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of SynsetRelation or None if error
+        """
+        pass
+
+    @abstractmethod
+    def get_units_and_synsets(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[LexicalUnitAndSynset]]:
+        """
+        Get units and synset
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of LexicalUnitAndSynset or None if error
         """
         pass
 

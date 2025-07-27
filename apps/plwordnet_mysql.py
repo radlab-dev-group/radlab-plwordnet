@@ -6,7 +6,7 @@ from plwordnet_handler.api.plwordnet import PlWordnetAPI
 from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
 
 DEFAULT_LOG_LEVEL = "INFO"
-DEFAULT_DB_CFG_PATH = "resources/plwordnet-mysql-db.json"
+DEFAULT_DB_CFG_PATH = "../resources/plwordnet-mysql-db.json"
 DEFAULT_NX_OUT_FILE = "resources/plwordnet-nx-multidigraph.pickle"
 
 EXAMPLE_USAGE = f"""
@@ -25,7 +25,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("plwordnet_mysql.log"),
+        logging.FileHandler("../plwordnet_mysql.log"),
     ],
 )
 
