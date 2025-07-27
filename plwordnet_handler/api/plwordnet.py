@@ -1,3 +1,4 @@
+import networkx
 from typing import Optional, List
 
 from plwordnet_handler.structure.elems.lu import LexicalUnit
@@ -67,3 +68,10 @@ class PlWordnetAPI(PlWordnetAPIBase):
             List of relation types or None if an error occurred
         """
         return self.connector.get_relation_types(limit=limit)
+
+    def to_nx_multi_di_graph(
+        self, extract_wiki_articles: bool, limit: Optional[int] = None
+    ) -> networkx.MultiDiGraph or None:
+        return self.connector.to_nx_multi_di_graph(
+            extract_wiki_articles=extract_wiki_articles, limit=limit
+        )

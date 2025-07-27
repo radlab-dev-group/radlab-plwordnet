@@ -360,6 +360,7 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
             raise ValueError("Not connected to database")
 
         self.logger.info("Converting database to networkx MultiDiGraph")
+        self.logger.info(f"  extract_wiki_articles={extract_wiki_articles}")
 
         self.logger.info("Getting all lexical units")
         all_lu = self.get_lexical_units(limit=limit)

@@ -2,11 +2,13 @@ import sys
 import logging
 import argparse
 
-from plwordnet_handler.api.plwordnet import PlWordnetAPI
-from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
+from plwordnet_handler.structure.polishwordnet import PolishWordnet
+
+# from plwordnet_handler.api.plwordnet import PlWordnetAPI
+# from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
 
 DEFAULT_LOG_LEVEL = "INFO"
-DEFAULT_DB_CFG_PATH = "../resources/plwordnet-mysql-db.json"
+DEFAULT_DB_CFG_PATH = "resources/plwordnet-mysql-db.json"
 DEFAULT_NX_OUT_FILE = "resources/plwordnet-nx-multidigraph.pickle"
 
 EXAMPLE_USAGE = f"""
@@ -25,7 +27,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("../plwordnet_mysql.log"),
+        logging.FileHandler("plwordnet_cli.log"),
     ],
 )
 
@@ -90,20 +92,19 @@ def prepare_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def dump_to_networkx_file(args, extract_wiki_articles: bool) -> int:
+def dump_to_networkx_file(args) -> int:
     logger.info("Starting NetworkX graph generation")
-    logger.info(f"Database config: {args.db_config}")
-    logger.info(f"Extract Wikipedia articles: {extract_wiki_articles}")
-    logger.info(f"Limit: {args.limit}")
-
     try:
-        with PlWordnetAPIMySQLDbConnector(args.db_config) as mysql_connector:
+        with PolishWordnet(
+            db_config_path=args.db_config,
+            extract_wiki_articles=args.extract_wikipedia_articles,
+        ) as mysql_connector:
             logger.info("Connecting to database...")
             mysql_connector.connect()
 
             logger.info("Converting to NetworkX MultiDiGraph...")
             nx_graph = mysql_connector.to_nx_multi_di_graph(
-                extract_wiki_articles=extract_wiki_articles,
+                extract_wiki_articles=args.extract_wikipedia_articles,
                 limit=args.limit,
             )
 
@@ -131,9 +132,7 @@ def main(argv=None):
     logger.info(f"Arguments: {vars(args)}")
 
     if args.convert_to_nx:
-        return dump_to_networkx_file(
-            args=args, extract_wiki_articles=args.extract_wikipedia_articles
-        )
+        return dump_to_networkx_file(args=args)
 
     # api = PlWordnetAPI(
     #     connector=PlWordnetAPIMySQLDbConnector(args.db_config),
