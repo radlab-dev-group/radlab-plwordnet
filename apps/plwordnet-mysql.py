@@ -72,8 +72,8 @@ def dump_to_networkx_file(args, extract_wiki_articles: bool) -> int:
     return 1
 
 
-def main():
-    args = prepare_parser().parse_args()
+def main(argv=None):
+    args = prepare_parser().parse_args(argv)
     if args.convert_to_nx:
         return dump_to_networkx_file(
             args=args, extract_wiki_articles=args.extract_wikipedia_articles
@@ -102,4 +102,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
