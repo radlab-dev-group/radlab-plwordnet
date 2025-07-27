@@ -15,7 +15,7 @@ DEFAULT_NX_OUT_FILE = "resources/plwordnet-nx-multidigraph.pickle"
 EXAMPLE_USAGE = f"""
 Example usage:
 
-python plwordnet-mysql.py \\
+python plwordnet-cli \\
         --db-config {DEFAULT_DB_CFG_PATH} \\
         --extract-wikipedia-articles \\
         --convert-to-nx-graph \\
@@ -121,7 +121,7 @@ def main(argv=None):
     args = prepare_parser().parse_args(argv)
     prepare_logger(args=args)
 
-    logger.info("Starting plwordnet-mysql application")
+    logger.info("Starting plwordnet-cli")
     logger.info(f"Arguments: {vars(args)}")
 
     if args.convert_to_nx:
