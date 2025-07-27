@@ -6,6 +6,11 @@ from typing import Optional, List, Dict, Any, Tuple
 
 from plwordnet_handler.api.data.comment import CommentParser
 from plwordnet_handler.api.data.lu import LexicalUnit, LexicalUnitMapper
+from plwordnet_handler.api.data.lu_relations import (
+    LexicalUnitRelation,
+    LexicalUnitRelationMapper,
+)
+
 from plwordnet_handler.connectors.db.config import DbSQLConfig
 from plwordnet_handler.connectors.db.mysql import MySQLDbConnection
 from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface
@@ -215,50 +220,63 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
 
     def get_lexical_relations(
         self, limit: Optional[int] = None
-    ) -> Optional[List[Dict[str, Any]]]:
+    ) -> Optional[List[LexicalUnitRelation]]:
         """
         Retrieves lexical relations from the database.
 
         Args:
-            limit: Optional limit for number of results
+            limit: Optional limit for the number of results
 
         Returns:
-            List of dictionaries containing lexical relation data
-            or None on error
+            List of LexicalUnitRelation objects or None on error
         """
-        return self._execute_query_with_limit_opt(
+        data_list = self._execute_query_with_limit_opt(
             query=self.Q[self.GET_ALL_LU_RELS],
             limit=limit,
         )
+        if not data_list:
+            return None
+        return LexicalUnitRelationMapper.map_from_dict_list(data_list=data_list)
 
-    def to_nx_multi_di_graph(self) -> networkx.MultiDiGraph or None:
+    def to_nx_multi_di_graph(
+        self, extract_wiki_articles: bool
+    ) -> networkx.MultiDiGraph or None:
         """
         Converts database data to NetworkX MultiDiGraph format.
+
+        Args:
+            extract_wiki_articles: Whether to extract wiki articles
 
         Returns:
             NetworkX MultiDiGraph or None (currently returns None - in development)
 
         Raises:
-            ValueError: If not connected to database
+            ValueError: If not connected to the database
         """
         if not self.is_connected():
             raise ValueError("Not connected to database")
 
-        parser = CommentParser()
-        for lu in self.get_lexical_units(limit=1000):
-            print("LU:", lu)
-            print(" EMO ANNOTATIONS")
-            print("   -> emotions")
-            print("\t", parser.get_all_emotions(lu.comment))
-            print("   -> categories")
-            print("\t", parser.get_all_categories(lu.comment))
+        all_lu = self.get_lexical_units()
+        all_lu_rels = self.get_lexical_relations()
 
-            print(" ADDITIONAL INFO")
-            print("   -> ext_url: ", lu.comment.external_url_description)
-            print("   -> base_domain: ", lu.comment.base_domain)
-            print("   -> definition: ", lu.comment.definition)
-            print("   -> usage_examples: ")
-            for e in lu.comment.usage_examples:
-                print("  \t - ", e)
-            print("-" * 50)
+        print("Number of lexical units:", len(all_lu))
+        print("Number of lexical units relations:", len(all_lu_rels))
+        #
+        # parser = CommentParser()
+        # for lu in self.get_lexical_units(limit=1000):
+        #     print("LU:", lu)
+        #     print(" EMO ANNOTATIONS")
+        #     print("   -> emotions")
+        #     print("\t", parser.get_all_emotions(lu.comment))
+        #     print("   -> categories")
+        #     print("\t", parser.get_all_categories(lu.comment))
+        #
+        #     print(" ADDITIONAL INFO")
+        #     print("   -> ext_url: ", lu.comment.external_url_description)
+        #     print("   -> base_domain: ", lu.comment.base_domain)
+        #     print("   -> definition: ", lu.comment.definition)
+        #     print("   -> usage_examples: ")
+        #     for e in lu.comment.usage_examples:
+        #         print("  \t - ", e)
+        #     print("-" * 50)
         return None

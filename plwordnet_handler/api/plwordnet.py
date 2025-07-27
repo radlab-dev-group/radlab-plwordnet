@@ -1,6 +1,8 @@
 from typing import Optional, List, Dict, Any
 
 from plwordnet_handler.api.data.lu import LexicalUnit
+from plwordnet_handler.api.data.lu_relations import LexicalUnitRelation
+
 from plwordnet_handler.api.plwordnet_i import PlWordnetAPIBase
 from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface
 
@@ -10,8 +12,18 @@ class PlWordnetAPI(PlWordnetAPIBase):
     Main API class for Polish Wordnet operations.
     """
 
-    def __init__(self, connector: PlWordnetConnectorInterface):
+    def __init__(
+        self,
+        connector: PlWordnetConnectorInterface,
+        extract_wiki_articles: bool = False,
+    ):
+        """
+        Args:
+             connector: connector interface for plWordnet (PlWordnetConnectorInterface)
+             extract_wiki_articles: whether to extract wiki articles
+        """
         super().__init__(connector)
+        self.extract_wiki_articles = extract_wiki_articles
 
     def get_lexical_units(
         self, limit: Optional[int] = None
@@ -29,7 +41,7 @@ class PlWordnetAPI(PlWordnetAPIBase):
 
     def get_lexical_relations(
         self, limit: Optional[int] = None
-    ) -> Optional[List[Dict[str, Any]]]:
+    ) -> Optional[List[LexicalUnitRelation]]:
         """
         Get lexical relations from the wordnet database.
 

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, List, Dict, Any
 
 from plwordnet_handler.api.data.lu import LexicalUnit
+from plwordnet_handler.api.data.lu_relations import LexicalUnitRelation
 
 
 class PlWordnetConnectorInterface(ABC):
@@ -54,7 +55,7 @@ class PlWordnetConnectorInterface(ABC):
     @abstractmethod
     def get_lexical_relations(
         self, limit: Optional[int] = None
-    ) -> Optional[List[Dict[str, Any]]]:
+    ) -> Optional[List[LexicalUnitRelation]]:
         """
         Get lexical relations
 
