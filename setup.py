@@ -45,7 +45,7 @@ setup(
     python_requires=">=3.6",
     entry_points={
         "console_scripts": [
-            "plwordnet-mysql=apps.plwordnet-mysql:main",
+            "plwordnet-mysql=apps.plwordnet_mysql:main",
         ],
     },
     keywords="nlp, wordnet, polish, linguistics, semantic",
