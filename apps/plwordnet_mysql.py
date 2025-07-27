@@ -1,3 +1,11 @@
+import sys
+import logging
+import argparse
+
+from plwordnet_handler.api.plwordnet import PlWordnetAPI
+from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
+
+DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_DB_CFG_PATH = "resources/plwordnet-mysql-db.json"
 DEFAULT_NX_OUT_FILE = "resources/plwordnet-nx-multidigraph.pickle"
 
@@ -8,15 +16,20 @@ python plwordnet-mysql.py \\
         --db-config {DEFAULT_DB_CFG_PATH} \\
         --extract-wikipedia-articles \\
         --convert-to-nx-graph \\
-        --nx-graph-file {DEFAULT_NX_OUT_FILE}
+        --nx-graph-file {DEFAULT_NX_OUT_FILE} \\
+        --log-level {DEFAULT_LOG_LEVEL}
 """
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("plwordnet_mysql.log"),
+    ],
+)
 
-import sys
-import argparse
-
-from plwordnet_handler.api.plwordnet import PlWordnetAPI
-from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
+logger = logging.getLogger(__name__)
 
 
 def prepare_parser() -> argparse.ArgumentParser:
@@ -47,6 +60,7 @@ def prepare_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Convert to NX graph as nx.MultiDiGraph",
     )
+
     parser.add_argument(
         "--nx-graph-file",
         dest="nx_graph_file",
@@ -56,50 +70,91 @@ def prepare_parser() -> argparse.ArgumentParser:
         f"{DEFAULT_NX_OUT_FILE} will be used",
     )
 
+    parser.add_argument(
+        "--limit",
+        dest="limit",
+        type=int,
+        required=False,
+        help="Limit the number of results to check app is proper working.",
+    )
+
+    parser.add_argument(
+        "--log-level",
+        dest="log_level",
+        type=str,
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default=DEFAULT_LOG_LEVEL,
+        help="Set the logging level",
+    )
+
     return parser
 
 
 def dump_to_networkx_file(args, extract_wiki_articles: bool) -> int:
-    mysql_connector = PlWordnetAPIMySQLDbConnector(args.db_config)
-    mysql_connector.connect()
+    logger.info("Starting NetworkX graph generation")
+    logger.info(f"Database config: {args.db_config}")
+    logger.info(f"Extract Wikipedia articles: {extract_wiki_articles}")
+    logger.info(f"Limit: {args.limit}")
 
-    # TODO: extract_wiki_articles
-    nx_graph = mysql_connector.to_nx_multi_di_graph()
+    try:
+        with PlWordnetAPIMySQLDbConnector(args.db_config) as mysql_connector:
+            logger.info("Connecting to database...")
+            mysql_connector.connect()
 
-    # TODO: Store to args.nx_graph_file
-    mysql_connector.disconnect()
+            logger.info("Converting to NetworkX MultiDiGraph...")
+            nx_graph = mysql_connector.to_nx_multi_di_graph(
+                extract_wiki_articles=extract_wiki_articles,
+                limit=args.limit,
+            )
 
-    return 1
+            # TODO: Store to args.nx_graph_file
+            logger.info("Disconnecting from database...")
+            mysql_connector.disconnect()
+
+        logger.info("NetworkX graph generation completed successfully")
+        return 0
+
+    except Exception as e:
+        logger.error(f"Error during NetworkX graph generation: {e}")
+        return 1
+
+
+def prepare_logger(args) -> None:
+    logging.getLogger().setLevel(getattr(logging, args.log_level))
 
 
 def main(argv=None):
     args = prepare_parser().parse_args(argv)
+    prepare_logger(args=args)
+
+    logger.info("Starting plwordnet-mysql application")
+    logger.info(f"Arguments: {vars(args)}")
+
     if args.convert_to_nx:
         return dump_to_networkx_file(
             args=args, extract_wiki_articles=args.extract_wikipedia_articles
         )
 
-    # TODO: args.extract_wikipedia_articles
-    api = PlWordnetAPI(connector=PlWordnetAPIMySQLDbConnector(args.db_config))
+    # api = PlWordnetAPI(
+    #     connector=PlWordnetAPIMySQLDbConnector(args.db_config),
+    #     extract_wiki_articles=args.extract_wikipedia_articles,
+    # )
     # api.connect()
     # if not api.is_connected():
     #     raise Exception("Connection to MySQL failed")
     # print("Connected to MySQL")
     #
-    # l_us = api.to_nx_multi_di_graph(limit=10)
-    # print("Lexical units:")
-    # for lu in l_us:
-    #     print("\t->", lu)
-    #
-    # l_u_rels = api.get_lexical_relations(limit=10)
-    # print("Lexical relations:")
-    # for rel in l_u_rels:
-    #     print("\t->", rel)
+    # rel_types = api.get_relation_types(limit=10)
+    # print("Relation types:")
+    # for rt in rel_types:
+    #     print("\t->", rt)
     #
     # api.disconnect()
-
-    return 0
+    #
+    # return 0
+    logger.warning("Main functionality not implemented yet!")
+    raise NotImplementedError("Not implemented yet!")
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

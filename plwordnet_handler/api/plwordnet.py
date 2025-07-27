@@ -1,6 +1,7 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 from plwordnet_handler.api.data.lu import LexicalUnit
+from plwordnet_handler.api.data.rel_type import RelationType
 from plwordnet_handler.api.data.lu_relations import LexicalUnitRelation
 
 from plwordnet_handler.api.plwordnet_i import PlWordnetAPIBase
@@ -52,3 +53,17 @@ class PlWordnetAPI(PlWordnetAPIBase):
             List of lexical relations or None if an error occurred
         """
         return self.connector.get_lexical_relations(limit=limit)
+
+    def get_relation_types(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[RelationType]]:
+        """
+        Get relation types from the wordnet database.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of relation types or None if an error occurred
+        """
+        return self.connector.get_relation_types(limit=limit)

@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 from plwordnet_handler.api.data.lu import LexicalUnit
+from plwordnet_handler.api.data.rel_type import RelationType
 from plwordnet_handler.api.data.lu_relations import LexicalUnitRelation
 
 
@@ -64,6 +65,21 @@ class PlWordnetConnectorInterface(ABC):
 
         Returns:
             List of lexical relations or None if error
+        """
+        pass
+
+    @abstractmethod
+    def get_relation_types(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[RelationType]]:
+        """
+        Get types of relations
+
+        Args:
+            limit: Optional limit for a number of results
+
+        Returns:
+            List of relation types or None if error occurred
         """
         pass
 

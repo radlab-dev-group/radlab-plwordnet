@@ -6,6 +6,7 @@ from typing import Optional, List, Dict, Any, Tuple
 
 from plwordnet_handler.api.data.comment import CommentParser
 from plwordnet_handler.api.data.lu import LexicalUnit, LexicalUnitMapper
+from plwordnet_handler.api.data.rel_type import RelationType, RelationTypeMapper
 from plwordnet_handler.api.data.lu_relations import (
     LexicalUnitRelation,
     LexicalUnitRelationMapper,
@@ -148,9 +149,11 @@ class _PlWordnetAPIMySQLDbConnectorQueries(_PlWordnetAPIMySQLDbConnectorBase, AB
     LIMIT_QUERY = "LIMIT"
     GET_ALL_LU = "LEXICAL_UNITS"
     GET_ALL_LU_RELS = "LEXICAL_UNITS_RELATIONS"
+    GET_ALL_REL_TYPES = "RELATION_TYPES"
     Q = {
         GET_ALL_LU: "SELECT * FROM lexicalunit",
         GET_ALL_LU_RELS: "SELECT * FROM lexicalrelation",
+        GET_ALL_REL_TYPES: "SELECT * FROM relationtype",
     }
 
     def _limit_query(self, query: str, limit: int):
@@ -238,14 +241,35 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
             return None
         return LexicalUnitRelationMapper.map_from_dict_list(data_list=data_list)
 
+    def get_relation_types(
+        self, limit: Optional[int] = None
+    ) -> Optional[List[RelationType]]:
+        """
+        Retrieves relation types from the database.
+
+        Args:
+            limit: Optional limit for the number of results
+
+        Returns:
+            List of RelationType objects or None on error
+        """
+        data_list = self._execute_query_with_limit_opt(
+            query=self.Q[self.GET_ALL_REL_TYPES],
+            limit=limit,
+        )
+        if not data_list:
+            return None
+        return RelationTypeMapper.map_from_dict_list(data_list=data_list)
+
     def to_nx_multi_di_graph(
-        self, extract_wiki_articles: bool
+        self, extract_wiki_articles: bool, limit: Optional[int] = None
     ) -> networkx.MultiDiGraph or None:
         """
         Converts database data to NetworkX MultiDiGraph format.
 
         Args:
             extract_wiki_articles: Whether to extract wiki articles
+            limit: Optional limit for the number of results
 
         Returns:
             NetworkX MultiDiGraph or None (currently returns None - in development)
@@ -256,12 +280,20 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
         if not self.is_connected():
             raise ValueError("Not connected to database")
 
-        all_lu = self.get_lexical_units()
-        all_lu_rels = self.get_lexical_relations()
+        self.logger.info("Converting database to networkx MultiDiGraph")
 
-        print("Number of lexical units:", len(all_lu))
-        print("Number of lexical units relations:", len(all_lu_rels))
-        #
+        self.logger.info("Getting all lexical units")
+        all_lu = self.get_lexical_units(limit=limit)
+        self.logger.info(f"Number of lexical units: {len(all_lu)}")
+
+        self.logger.info("Getting all relation types")
+        all_rel_types = self.get_relation_types(limit=limit)
+        self.logger.info(f"Number of relation types {len(all_rel_types)}")
+
+        self.logger.info("Getting all lexical relations")
+        all_lu_rels = self.get_lexical_relations(limit=limit)
+        self.logger.info(f"Number of lexical units relations: {len(all_lu_rels)}")
+
         # parser = CommentParser()
         # for lu in self.get_lexical_units(limit=1000):
         #     print("LU:", lu)
