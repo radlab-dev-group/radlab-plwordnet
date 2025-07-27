@@ -14,6 +14,7 @@ class PolishWordnet:
         connector=None,
         db_config_path: Optional[str] = None,
         extract_wiki_articles: bool = False,
+        use_memory_cache: bool = False,
     ):
         """
         Initialize PolishWordnet with PlWordnetAPI.

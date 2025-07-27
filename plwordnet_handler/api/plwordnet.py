@@ -27,7 +27,6 @@ class PlWordnetAPI(PlWordnetAPIBase):
         "get_synset_relations",
         "get_units_and_synsets",
         "get_relation_types",
-        "to_nx_multi_di_graph",
     ]
 
     def __init__(
@@ -126,20 +125,3 @@ class PlWordnetAPI(PlWordnetAPIBase):
             List of LexicalUnitAndSynset or None if an error occurred
         """
         return self.connector.get_units_and_synsets(limit=limit)
-
-    def to_nx_multi_di_graph(
-        self, extract_wiki_articles: bool, limit: Optional[int] = None
-    ) -> networkx.MultiDiGraph or None:
-        """
-        Call `to_nx_multi_di_graph` from connector.
-
-        Args:
-            extract_wiki_articles: whether to extract wiki articles
-            limit: Optional limit for the number of results
-
-        Returns:
-            networkx.MultiDiGraph or None if an error occurred
-        """
-        return self.connector.to_nx_multi_di_graph(
-            extract_wiki_articles=extract_wiki_articles, limit=limit
-        )

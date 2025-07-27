@@ -1,5 +1,3 @@
-import networkx
-
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
@@ -128,22 +126,6 @@ class PlWordnetConnectorInterface(ABC):
 
         Returns:
             List of relation types or None if error occurred
-        """
-        pass
-
-    @abstractmethod
-    def to_nx_multi_di_graph(
-        self, extract_wiki_articles: bool, limit: Optional[int] = None
-    ) -> networkx.MultiDiGraph or None:
-        """
-        Converts Słowosieć to networkx.MultiDiGraph
-
-        Args:
-            extract_wiki_articles: Optional extract wiki content.
-            limit: Optional limit for a number of results
-
-        Returns:
-            networkx.MultiDiGraph or None if error
         """
         pass
 

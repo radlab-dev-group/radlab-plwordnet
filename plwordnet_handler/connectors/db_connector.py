@@ -1,5 +1,4 @@
 import logging
-import networkx
 
 from abc import ABC
 from typing import Optional, List, Dict, Any, Tuple
@@ -339,70 +338,3 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
         if not data_list:
             return None
         return RelationTypeMapper.map_from_dict_list(data_list=data_list)
-
-    def to_nx_multi_di_graph(
-        self, extract_wiki_articles: bool, limit: Optional[int] = None
-    ) -> networkx.MultiDiGraph or None:
-        """
-        Converts database data to NetworkX MultiDiGraph format.
-
-        Args:
-            extract_wiki_articles: Whether to extract wiki articles
-            limit: Optional limit for the number of results
-
-        Returns:
-            NetworkX MultiDiGraph or None (currently returns None - in development)
-
-        Raises:
-            ValueError: If not connected to the database
-        """
-        if not self.is_connected():
-            raise ValueError("Not connected to database")
-
-        self.logger.info("Converting database to networkx MultiDiGraph")
-        self.logger.info(f"  extract_wiki_articles={extract_wiki_articles}")
-
-        self.logger.info("Getting all lexical units")
-        all_lu = self.get_lexical_units(limit=limit)
-        self.logger.info(f"  -> number of lexical units: {len(all_lu)}")
-
-        self.logger.info("Getting all relation types")
-        all_rel_types = self.get_relation_types(limit=limit)
-        self.logger.info(f"  -> number of relation types {len(all_rel_types)}")
-
-        self.logger.info("Getting all lexical relations")
-        all_lu_rels = self.get_lexical_relations(limit=limit)
-        self.logger.info(
-            f"  -> number of lexical units relations: {len(all_lu_rels)}"
-        )
-
-        self.logger.info("Getting all synsets")
-        all_syn = self.get_synsets(limit=limit)
-        self.logger.info(f"  -> number of synsets: {len(all_syn)}")
-
-        self.logger.info("Getting all synset relations")
-        all_syn_rels = self.get_synset_relations(limit=limit)
-        self.logger.info(f"  -> number of synset relations: {len(all_syn_rels)}")
-
-        self.logger.info("Getting all units and synset")
-        all_lu_in_syn = self.get_units_and_synsets(limit=limit)
-        self.logger.info(f"  -> number of units and synsets: {len(all_lu_in_syn)}")
-
-        # parser = CommentParser()
-        # for lu in self.get_lexical_units(limit=1000):
-        #     print("LU:", lu)
-        #     print(" EMO ANNOTATIONS")
-        #     print("   -> emotions")
-        #     print("\t", parser.get_all_emotions(lu.comment))
-        #     print("   -> categories")
-        #     print("\t", parser.get_all_categories(lu.comment))
-        #
-        #     print(" ADDITIONAL INFO")
-        #     print("   -> ext_url: ", lu.comment.external_url_description)
-        #     print("   -> base_domain: ", lu.comment.base_domain)
-        #     print("   -> definition: ", lu.comment.definition)
-        #     print("   -> usage_examples: ")
-        #     for e in lu.comment.usage_examples:
-        #         print("  \t - ", e)
-        #     print("-" * 50)
-        return None

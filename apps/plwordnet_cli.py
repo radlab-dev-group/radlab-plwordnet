@@ -2,6 +2,7 @@ import sys
 import logging
 import argparse
 
+from plwordnet_handler.connectors.db.db_to_nx import DBToGraphMapper
 from plwordnet_handler.structure.polishwordnet import PolishWordnet
 
 # from plwordnet_handler.api.plwordnet import PlWordnetAPI
@@ -98,14 +99,13 @@ def dump_to_networkx_file(args) -> int:
         with PolishWordnet(
             db_config_path=args.db_config,
             extract_wiki_articles=args.extract_wikipedia_articles,
+            connector=None,
+            use_memory_cache=True,
         ) as pl_wn:
+            g_mapper = DBToGraphMapper(polish_wordnet=pl_wn)
             logger.info("Converting to NetworkX MultiDiGraph...")
-            nx_graph = pl_wn.to_nx_multi_di_graph(
-                extract_wiki_articles=args.extract_wikipedia_articles,
-                limit=args.limit,
-            )
-            # TODO: Store to args.nx_graph_file
-            logger.info("Disconnecting from database...")
+            g_mapper.prepare_all_graphs(limit=args.limit)
+
         logger.info("NetworkX graph generation completed successfully")
         return 0
     except Exception as e:
