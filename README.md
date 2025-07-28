@@ -143,6 +143,7 @@ plwordnet-cli \
     --extract-wikipedia-articles \
     --db-config resources/plwordnet-mysql-db.json 
 ```
+**Uwaga**, proces pobierania artykułóœ może być bardzo długi!
 
 ## Dokumentacja API
 Szczegółowa dokumentacja API dostępna jest w kodzie źródłowym. 
