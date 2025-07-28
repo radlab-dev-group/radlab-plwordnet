@@ -2,7 +2,7 @@
 
 Biblioteka do pracy z polskim słownikiem semantycznym PLWordNet. 
 Umożliwia łatwy dostęp do danych słownikowych, zarządzanie połączeniami 
-z bazą danych oraz przetwarzanie struktur językowych.
+z bazą danych oraz przetwarzanie struktur Słowosieci.
 
 **Aktualna wersja `README.md` jest w trakcie tworzenia, niektóre opisy 
 mogą nie być aktualne**
@@ -10,19 +10,18 @@ mogą nie być aktualne**
 ## Opis
 
 PLWordNet Handler to kompleksowa biblioteka Python do pracy z danymi 
-z polskiego słownika semantycznego PLWordNet. Biblioteka oferuje 
-wysokopoziomowy interfejs API do pobierania jednostek leksykalnych, 
-relacji między słowami oraz dodatkowych informacji językowych. 
-Wspiera różne typy połączeń z bazą danych i zapewnia narzędzia do analizy 
-komentarzy oraz przykładów użycia.
+z polskiej Słowosieci. Biblioteka oferuje wysokopoziomowy interfejs 
+API do pobierania jednostek leksykalnych, relacji między nimi
+oraz dodatkowych informacji ze Słowosieci. Wspiera połączenie 
+z bazą danych i zapewnia funkcjonalności do analizy komentarzy 
+oraz przykładów użycia jednostek leksykalnych.
 
 ## Główne funkcjonalności
 
 - **Dostęp do danych PLWordNet**: Pobieranie jednostek leksykalnych i relacji semantycznych
-- **Elastyczne połączenia**: Obsługa różnych typów baz danych (MySQL, PostgreSQL)
-- **Parsowanie komentarzy**: Analiza złożonych komentarzy z adnotacjami sentymentalnymi
+- **Elastyczne połączenia**: Połączenie do MySQL, konwersja do grafu `networkx`
+- **Parsowanie komentarzy**: Analiza złożonych komentarzy z anotacjami m.in. sentyment
 - **Integracja z Wikipedią**: Wzbogacanie danych o opisy z Wikipedii
-- **Wizualizacja**: Tworzenie grafów relacji semantycznych
 - **Aplikacje konsolowe**: Gotowe narzędzia do pracy z danymi
 
 ## Główne moduły
@@ -166,13 +165,3 @@ plwordnet-handler/
 
 ## Licencja
 Apache 2.0 License - szczegóły w pliku LICENSE.
-
-## Współpraca
-Zapraszamy do współpracy! Prosimy o:
-1. Forkowanie repozytorium
-2. Utworzenie feature branch
-3. Implementację zmian z testami
-4. Utworzenie Pull Request
-
-## Wsparcie
-W przypadku problemów lub pytań prosimy o utworzenie Issue w repozytorium GitHub.
