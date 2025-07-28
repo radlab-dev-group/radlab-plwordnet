@@ -9,8 +9,8 @@ from plwordnet_handler.structure.polishwordnet import PolishWordnet
 # from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
 
 DEFAULT_LOG_LEVEL = "INFO"
-DEFAULT_NX_OUT_DIR = "../resources/plwordnet"
-DEFAULT_DB_CFG_PATH = "../resources/plwordnet-mysql-db.json"
+DEFAULT_NX_OUT_DIR = "resources/plwordnet"
+DEFAULT_DB_CFG_PATH = "resources/plwordnet-mysql-db.json"
 
 EXAMPLE_USAGE = f"""
 Example usage:
@@ -28,7 +28,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("../plwordnet_cli.log"),
+        logging.FileHandler("plwordnet_cli.log"),
     ],
 )
 
