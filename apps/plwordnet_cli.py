@@ -90,6 +90,13 @@ def prepare_parser() -> argparse.ArgumentParser:
         help="Set the logging level",
     )
 
+    parser.add_argument(
+        "--show-progress-bar",
+        dest="show_progress_bar",
+        action="store_true",
+        help="Show progress bar",
+    )
+
     return parser
 
 
@@ -101,6 +108,7 @@ def dump_to_networkx_file(args) -> int:
             extract_wiki_articles=args.extract_wikipedia_articles,
             connector=None,
             use_memory_cache=True,
+            show_progress_bar=args.show_progress_bar,
         ) as pl_wn:
             g_mapper = DBToGraphMapper(polish_wordnet=pl_wn)
             logger.info("Converting to NetworkX MultiDiGraph...")

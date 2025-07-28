@@ -15,6 +15,7 @@ class PolishWordnet:
         db_config_path: Optional[str] = None,
         extract_wiki_articles: bool = False,
         use_memory_cache: bool = False,
+        show_progress_bar: bool = False,
     ):
         """
         Initialize PolishWordnet with PlWordnetAPI.
@@ -36,6 +37,7 @@ class PolishWordnet:
             connector=connector,
             extract_wiki_articles=extract_wiki_articles,
             use_memory_cache=use_memory_cache,
+            show_progress_bar=show_progress_bar,
         )
 
     def __getattr__(self, name):

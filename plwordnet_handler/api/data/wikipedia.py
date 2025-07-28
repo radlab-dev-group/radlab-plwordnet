@@ -45,6 +45,8 @@ class WikipediaExtractor:
         Returns:
             Main description text or None if extraction failed
         """
+        self.logger.debug(f"Processing article {wikipedia_url}")
+
         try:
             article_title = self._extract_article_title(wikipedia_url=wikipedia_url)
             if not article_title:

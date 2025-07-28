@@ -38,19 +38,19 @@ class PlWordnetAPI(PlWordnetAPIBase):
         connector: PlWordnetConnectorInterface,
         extract_wiki_articles: bool = False,
         use_memory_cache: bool = False,
-        show_progres: bool = False,
+        show_progress_bar: bool = False,
     ):
         """
         Args:
              connector: connector interface for plWordnet (PlWordnetConnectorInterface)
              extract_wiki_articles: whether to extract wiki articles
              use_memory_cache: whether to use memory caching
-             show_progres: whether to show tqdm progress bar
+             show_progress_bar: whether to show tqdm progress bar
         """
         super().__init__(connector)
 
-        self.show_progres = show_progres
         self.use_memory_cache = use_memory_cache
+        self.show_progress_bar = show_progress_bar
         self.extract_wiki_articles = extract_wiki_articles
 
         self.__mem__cache_ = {}
@@ -74,7 +74,9 @@ class PlWordnetAPI(PlWordnetAPIBase):
 
         lu_list = self.connector.get_lexical_units(limit=limit)
         if self.extract_wiki_articles:
-            lu_list = self.__add_wiki_context(lu_list)
+            lu_list = self.__add_wiki_context(
+                lu_list=lu_list, force_download_content=True
+            )
 
         if self.use_memory_cache:
             self.__mem__cache_["get_lexical_units"] = lu_list
@@ -194,9 +196,11 @@ class PlWordnetAPI(PlWordnetAPIBase):
 
         return u_a_s
 
-    def __add_wiki_context(self, lu_list: List[LexicalUnit]):
+    def __add_wiki_context(
+        self, lu_list: List[LexicalUnit], force_download_content: bool = False
+    ):
         pbar = None
-        if self.show_progres:
+        if self.show_progress_bar:
             pbar = tqdm(total=len(lu_list), desc="Adding Wiki context")
 
         extractor = WikipediaExtractor(max_sentences=self.MAX_WIKI_SENTENCES)
@@ -215,6 +219,11 @@ class PlWordnetAPI(PlWordnetAPIBase):
             url = lu.comment.external_url_description.url
             if not url or not len(url.strip()):
                 continue
+
+            content = lu.comment.external_url_description.content
+            if content and content.strip():
+                if not force_download_content:
+                    continue
 
             content = extractor.extract_main_description(wikipedia_url=url)
             if not content:
