@@ -4,6 +4,9 @@ Biblioteka do pracy z polskim słownikiem semantycznym PLWordNet.
 Umożliwia łatwy dostęp do danych słownikowych, zarządzanie połączeniami 
 z bazą danych oraz przetwarzanie struktur językowych.
 
+**Aktualna wersja README jest w trakcie tworzenia, niektóre opisy 
+mogą nie być aktualne**
+
 ## Opis
 
 PLWordNet Handler to kompleksowa biblioteka Python do pracy z danymi 
