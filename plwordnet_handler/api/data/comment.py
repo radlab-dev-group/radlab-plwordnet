@@ -44,6 +44,7 @@ class ExternalUrlDescription:
     """
 
     url: str
+    content: str = None
 
 
 @dataclass

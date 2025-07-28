@@ -9,8 +9,8 @@ from plwordnet_handler.structure.polishwordnet import PolishWordnet
 # from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
 
 DEFAULT_LOG_LEVEL = "INFO"
+DEFAULT_NX_OUT_DIR = "../resources/plwordnet"
 DEFAULT_DB_CFG_PATH = "../resources/plwordnet-mysql-db.json"
-DEFAULT_NX_OUT_FILE = "resources/plwordnet-nx-multidigraph.pickle"
 
 EXAMPLE_USAGE = f"""
 Example usage:
@@ -19,7 +19,7 @@ python plwordnet-cli \\
         --db-config {DEFAULT_DB_CFG_PATH} \\
         --extract-wikipedia-articles \\
         --convert-to-nx-graph \\
-        --nx-graph-file {DEFAULT_NX_OUT_FILE} \\
+        --nx-graph-dir {DEFAULT_NX_OUT_DIR} \\
         --log-level {DEFAULT_LOG_LEVEL}
 """
 
@@ -65,12 +65,12 @@ def prepare_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--nx-graph-file",
-        dest="nx_graph_file",
+        "--nx-graph-dir",
+        dest="nx_graph_dir",
         type=str,
-        default=DEFAULT_NX_OUT_FILE,
-        help=f"Path to NX graph file, if not given "
-        f"{DEFAULT_NX_OUT_FILE} will be used",
+        default=DEFAULT_NX_OUT_DIR,
+        help=f"Path to NX graph directory, if not given "
+        f"{DEFAULT_NX_OUT_DIR} will be used",
     )
 
     parser.add_argument(
@@ -105,6 +105,7 @@ def dump_to_networkx_file(args) -> int:
             g_mapper = DBToGraphMapper(polish_wordnet=pl_wn)
             logger.info("Converting to NetworkX MultiDiGraph...")
             g_mapper.prepare_all_graphs(limit=args.limit)
+            g_mapper.store_to_dir(out_dir_path=args.nx_graph_dir)
 
         logger.info("NetworkX graph generation completed successfully")
         return 0

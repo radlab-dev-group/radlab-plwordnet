@@ -33,11 +33,10 @@ class PolishWordnet:
                 raise Exception("Connector or database config must be provided.")
 
         self.api = PlWordnetAPI(
-            connector=connector, extract_wiki_articles=extract_wiki_articles
+            connector=connector,
+            extract_wiki_articles=extract_wiki_articles,
+            use_memory_cache=use_memory_cache,
         )
-
-    def info(self):
-        print("ALA MA KOTA")
 
     def __getattr__(self, name):
         """

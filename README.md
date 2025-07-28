@@ -130,7 +130,15 @@ print(f"Adnotacje: {len(parsed.sentiment_annotations)}")
 Po instalacji dostępne są aplikacje konsolowe:
 ``` bash
 # Uruchomienie aplikacji MySQL
-plwordnet-mysql
+plwordnet-cli
+```
+Przykładowe wywołanie do konwersji bazy MySQL do grafów ze ściąganiem linków Wikipedii:
+``` bash
+plwordnet-cli \
+    --convert-to-nx-graph \
+    --nx-graph-dir resources/plwordnet \
+    --extract-wikipedia-articles \
+    --db-config resources/plwordnet-mysql-db.json 
 ```
 
 ## Dokumentacja API

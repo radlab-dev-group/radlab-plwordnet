@@ -1,6 +1,8 @@
 import logging
-from typing import Optional, Dict, List
+import os
+import pickle
 import networkx as nx
+from typing import Optional, Dict, List
 
 from plwordnet_handler.structure.elems.lu import LexicalUnit
 from plwordnet_handler.structure.polishwordnet import PolishWordnet
@@ -11,6 +13,8 @@ class DBToGraphMapper:
     G_LU = "lexical_units"
     G_SYN = "synsets"
     GRAPH_TYPES = [G_UAS, G_LU, G_SYN]
+
+    GRAPH_DIR = "nx/graphs"
 
     """
     Class for mapping Polish Wordnet database elements to NetworkX MultiDiGraph.
@@ -85,7 +89,8 @@ class DBToGraphMapper:
 
     def get_lexical_unit_graph(self, limit: Optional[int] = None) -> nx.MultiDiGraph:
         """
-        Create a graph where lexical units are nodes and lexical unit relations are edges.
+        Create a graph where lexical units are nodes
+        and lexical unit relations are edges.
 
         Args:
             limit: Optional limit for the number of results
@@ -152,7 +157,8 @@ class DBToGraphMapper:
             limit: Optional limit for the number of results
 
         Returns:
-            NetworkX MultiDiGraph with synsets as nodes (containing unit lists) and relations as edges
+            NetworkX MultiDiGraph with synsets as nodes
+            (containing unit lists) and relations as edges
 
         Raises:
             ValueError: If required data is None
@@ -255,3 +261,24 @@ class DBToGraphMapper:
                     self.get_synset_with_units_graph(limit=limit)
                 else:
                     raise ValueError(f"Unknown graph type: {g_type}")
+
+    def store_to_dir(self, out_dir_path: str):
+        """
+        Store all graphs from _graphs to directory as separate pickle files.
+
+        Creates a subdirectory GRAPH_DIR within out_dir_path and saves each graph
+        from _graphs as a separate pickle file.
+
+        Args:
+            out_dir_path: Path to the output directory
+        """
+        graphs_dir = os.path.join(out_dir_path, self.GRAPH_DIR)
+        os.makedirs(graphs_dir, exist_ok=True)
+
+        self.logger.info(f"Storing graphs to directory: {graphs_dir}")
+        for graph_type, graph in self._graphs.items():
+            file_path = os.path.join(graphs_dir, f"{graph_type}.pickle")
+            with open(file_path, "wb") as f:
+                pickle.dump(graph, f)
+            self.logger.info(f"Saved graph '{graph_type}' to {file_path}")
+        self.logger.info(f"Successfully stored {len(self._graphs)} graphs")
