@@ -80,11 +80,12 @@ class MySQLConnectionI(ABC):
         Executes a SELECT query and returns the results.
 
         Args:
-            query: The SQL query to execute params: Parameters for the query (optional)
+            query: The SQL query to execute params
             params: Additional parameters to pass to the query (optional)
 
         Returns:
-            A list of dictionaries with the query results, or None in case of an error.
+            A list of dictionaries with the query results,
+            or None in case of an error.
         """
         try:
             if not self.cursor:

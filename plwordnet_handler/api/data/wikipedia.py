@@ -120,12 +120,10 @@ class WikipediaExtractor:
         try:
             article_title = self._extract_article_title(wikipedia_url=wikipedia_url)
             language = self._extract_language_from_url(wikipedia_url=wikipedia_url)
-
             if not article_title or not language:
                 return None
 
             description = self.extract_main_description(wikipedia_url=wikipedia_url)
-
             return {
                 "url": wikipedia_url,
                 "title": article_title,
@@ -139,7 +137,9 @@ class WikipediaExtractor:
             return None
 
     def close(self):
-        """Close the session."""
+        """
+        Close the session.
+        """
         if self.session:
             self.session.close()
 

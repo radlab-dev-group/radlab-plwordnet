@@ -1,13 +1,14 @@
 import logging
 import pickle
 import networkx as nx
+
 from pathlib import Path
 from typing import Optional, List
 
-from plwordnet_handler.connectors.const_data_mapper import GraphMapperData
-from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface
-from plwordnet_handler.structure.elems.lu import LexicalUnit, LexicalUnitMapper
 from plwordnet_handler.structure.elems.synset import Synset, SynsetMapper
+from plwordnet_handler.connectors.db_to_nx_data_mapper import GraphMapperData
+from plwordnet_handler.structure.elems.lu import LexicalUnit, LexicalUnitMapper
+from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface
 from plwordnet_handler.structure.elems.rel_type import (
     RelationType,
     RelationTypeMapper,
@@ -228,7 +229,7 @@ class PlWordnetAPINxConnector(PlWordnetConnectorInterface):
             limit: Optional limit for the number of results
 
         Returns:
-            List of relation types or None if error
+            List of relation types or None if error occurred
         """
         if not self.is_connected():
             self.logger.error("Not connected to NetworkX graphs")
@@ -330,7 +331,6 @@ class PlWordnetAPINxConnector(PlWordnetConnectorInterface):
             The mapped relation data in the format determined by the mapper_obj.
             The exact return type depends on the mapper implementation.
         """
-
         relations_data = []
         for parent_id, child_id, edge_data in graph.edges(data=True):
             relation_data = edge_data.get("data", {})

@@ -62,13 +62,11 @@ class _PlWordnetAPIMySQLDbConnectorBase(PlWordnetConnectorInterface, ABC):
         if not self.connection:
             self.logger.error("Connection not initialized")
             return False
-
         success = self.connection.connect()
         if success:
             self.logger.info("Successfully connected to plWordnet database")
         else:
             self.logger.error("Failed to connect to plWordnet database")
-
         return success
 
     def disconnect(self) -> None:
@@ -125,7 +123,8 @@ class _PlWordnetAPIMySQLDbConnectorBase(PlWordnetConnectorInterface, ABC):
         try:
             self.config = DbSQLConfig.from_json_file(config_path=self.db_config_path)
             self.logger.info(
-                f"Configuration loaded successfully for database: {self.config.database}"
+                f"Configuration loaded successfully "
+                f"for database: {self.config.database}"
             )
         except Exception as e:
             self.logger.error(f"Failed to load configuration: {e}")
@@ -228,7 +227,7 @@ class PlWordnetAPIMySQLDbConnector(_PlWordnetAPIMySQLDbConnectorQueries):
         Retrieves lexical units from the database.
 
         Args:
-            limit: Optional limit for number of results
+            limit: Optional limit for the number of results
 
         Returns:
             List of LexicalUnit objects or None if no data available
