@@ -1,16 +1,14 @@
 from tqdm import tqdm
 from typing import Optional, List
 
-from plwordnet_handler.structure.elems.lu import LexicalUnit
 from plwordnet_handler.structure.elems.synset import Synset
+from plwordnet_handler.structure.elems.lu import LexicalUnit
+from plwordnet_handler.api.plwordnet_i import PlWordnetAPIBase
+from plwordnet_handler.api.data.wikipedia import WikipediaExtractor
 from plwordnet_handler.structure.elems.rel_type import RelationType
 from plwordnet_handler.structure.elems.synset_relation import SynsetRelation
 from plwordnet_handler.structure.elems.lu_relations import LexicalUnitRelation
 from plwordnet_handler.structure.elems.lu_in_synset import LexicalUnitAndSynset
-
-from plwordnet_handler.api.data.wikipedia import WikipediaExtractor
-
-from plwordnet_handler.api.plwordnet_i import PlWordnetAPIBase
 from plwordnet_handler.connectors.connector_i import PlWordnetConnectorInterface
 
 
@@ -42,7 +40,8 @@ class PlWordnetAPI(PlWordnetAPIBase):
     ):
         """
         Args:
-             connector: connector interface for plWordnet (PlWordnetConnectorInterface)
+             connector: connector interface for plWordnet
+                        (PlWordnetConnectorInterface)
              extract_wiki_articles: whether to extract wiki articles
              use_memory_cache: whether to use memory caching
              show_progress_bar: whether to show tqdm progress bar

@@ -6,7 +6,9 @@ from typing import List, Dict, Optional, Tuple
 
 
 class ExampleType(Enum):
-    """Enum for different types of usage examples"""
+    """
+    Enum for different types of usage examples
+    """
 
     STANDARD = "P"
     KPWR = "KPWr"
@@ -462,7 +464,15 @@ class CommentParser:
     def _extract_external_url_description(
         self, comment: str
     ) -> Optional[ExternalUrlDescription]:
-        """Extract external URL description from ##L tag."""
+        """
+        Extract external URL description from ##L tag.
+
+        Args:
+            comment: Raw comment string
+
+        Returns:
+            ExternalUrlDescription: extracted URL or None
+        """
         match = re.search(self.external_url_pattern, comment)
         if match:
             url = match.group(1).strip()
@@ -470,7 +480,6 @@ class CommentParser:
         return None
 
 
-# Utility function for easy parsing
 def parse_plwordnet_comment(comment: str) -> ParsedComment:
     """
     Convenience function to parse a plWordnet comment.

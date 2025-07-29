@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
-from plwordnet_handler.structure.elems.lu import LexicalUnit
 from plwordnet_handler.structure.elems.synset import Synset
+from plwordnet_handler.structure.elems.lu import LexicalUnit
 from plwordnet_handler.structure.elems.rel_type import RelationType
 from plwordnet_handler.structure.elems.synset_relation import SynsetRelation
 from plwordnet_handler.structure.elems.lu_in_synset import LexicalUnitAndSynset

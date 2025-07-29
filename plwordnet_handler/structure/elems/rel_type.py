@@ -165,7 +165,7 @@ class RelationType:
         Check if the relation type has a non-empty description.
 
         Returns:
-            bool: True if description exists and is not empty, False otherwise
+            bool: True if the description exists and is not empty, False otherwise
         """
         return bool(self.description.strip())
 
@@ -175,7 +175,7 @@ class RelationType:
         Check if the relation type has a display name.
 
         Returns:
-            bool: True if display name exists and is not empty, False otherwise
+            bool: True if the display name exists and is not empty, False otherwise
         """
         return bool(self.display.strip())
 
@@ -185,7 +185,7 @@ class RelationType:
         Check if the relation type has a shortcut.
 
         Returns:
-            bool: True if shortcut exists and is not empty, False otherwise
+            bool: True if the shortcut exists and is not empty, False otherwise
         """
         return bool(self.shortcut.strip())
 
@@ -198,7 +198,7 @@ class RelationTypeMapper:
     @staticmethod
     def map_from_dict(data: Dict[str, Any]) -> RelationType:
         """
-        Map dictionary data to RelationType object.
+        Map dictionary data to a RelationType object.
 
         Args:
             data: Dictionary containing relation type data
@@ -211,7 +211,7 @@ class RelationTypeMapper:
     @staticmethod
     def map_from_dict_list(data_list: List[Dict[str, Any]]) -> List[RelationType]:
         """
-        Map list of dictionaries to list of RelationType objects.
+        Map list of dictionaries to a list of RelationType objects.
 
         Args:
             data_list: List of dictionaries containing relation type data
@@ -237,7 +237,7 @@ class RelationTypeMapper:
     @staticmethod
     def map_to_dict_list(relation_types: List[RelationType]) -> List[Dict[str, Any]]:
         """
-        Map list of RelationType objects to list of dictionaries.
+        Map list of RelationType objects to a list of dictionaries.
 
         Args:
             relation_types: List of RelationType objects

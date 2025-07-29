@@ -81,8 +81,10 @@ class LexicalUnitRelation:
             str: Detailed string representation for debugging
         """
         return (
-            f"LexicalUnitRelation(PARENT_ID={self.PARENT_ID}, CHILD_ID={self.CHILD_ID}, "
-            f"REL_ID={self.REL_ID}, valid={self.valid}, owner='{self.owner}')"
+            f"LexicalUnitRelation("
+            f"PARENT_ID={self.PARENT_ID}, CHILD_ID={self.CHILD_ID}, "
+            f"REL_ID={self.REL_ID}, "
+            f"valid={self.valid}, owner='{self.owner}')"
         )
 
     @property
@@ -144,7 +146,7 @@ class LexicalUnitRelationMapper:
         data_list: List[Dict[str, Any]]
     ) -> List[LexicalUnitRelation]:
         """
-        Map list of dictionaries to a list of LexicalUnitRelation objects.
+        Map a list of dictionaries to a list of LexicalUnitRelation objects.
 
         Args:
             data_list: List of dictionaries containing lexical unit relation data

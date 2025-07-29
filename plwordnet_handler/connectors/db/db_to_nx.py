@@ -2,20 +2,15 @@ import logging
 import os
 import pickle
 import networkx as nx
-from typing import Optional, Dict, List
+
+from typing import Optional, Dict, List, Any
 
 from plwordnet_handler.structure.elems.lu import LexicalUnit
 from plwordnet_handler.structure.polishwordnet import PolishWordnet
+from plwordnet_handler.connectors.db_to_nx_data_mapper import GraphMapperData
 
 
-class DBToGraphMapper:
-    G_UAS = "units_and_synsets"
-    G_LU = "lexical_units"
-    G_SYN = "synsets"
-    GRAPH_TYPES = [G_UAS, G_LU, G_SYN]
-
-    GRAPH_DIR = "nx/graphs"
-
+class GraphMapper(GraphMapperData):
     """
     Class for mapping Polish Wordnet database elements to NetworkX MultiDiGraph.
     """
@@ -32,7 +27,9 @@ class DBToGraphMapper:
 
         self._graphs = {}
 
-    def get_synset_graph(self, limit: Optional[int] = None) -> nx.MultiDiGraph:
+    def convert_to_synset_graph(
+        self, limit: Optional[int] = None
+    ) -> nx.MultiDiGraph:
         """
         Create a graph where synsets are nodes and synset relations are edges.
 
@@ -55,39 +52,16 @@ class DBToGraphMapper:
         if synset_relations is None:
             raise ValueError("Synset relations data is None")
 
-        relation_types = self.polish_wordnet.get_relation_types(limit=limit)
-        if relation_types is None:
-            raise ValueError("Relation types data is None")
-
-        # Create relation type mapping
-        rel_type_map = {rt.ID: rt for rt in relation_types}
-
-        # Create graph
-        graph = nx.MultiDiGraph()
-
-        # Add synset nodes
-        for synset in synsets:
-            graph.add_node(synset.ID, data=synset.to_dict())
-
-        # Add synset relation edges
-        for relation in synset_relations:
-            rel_type = rel_type_map.get(relation.REL_ID)
-            edge_data = {
-                "relation_id": relation.REL_ID,
-                "relation_type": rel_type.name if rel_type else None,
-                "data": relation.to_dict(),
-            }
-            graph.add_edge(relation.PARENT_ID, relation.CHILD_ID, **edge_data)
-
-        self.logger.info(
-            f"Created synset graph with {graph.number_of_nodes()} "
-            f"nodes and {graph.number_of_edges()} edges"
+        return self._prepare_graph(
+            to_nodes=synsets,
+            to_edges=synset_relations,
+            graph_type=self.G_SYN,
+            limit=limit,
         )
 
-        self._graphs[self.G_SYN] = graph
-        return graph
-
-    def get_lexical_unit_graph(self, limit: Optional[int] = None) -> nx.MultiDiGraph:
+    def convert_to_lexical_unit_graph(
+        self, limit: Optional[int] = None
+    ) -> nx.MultiDiGraph:
         """
         Create a graph where lexical units are nodes
         and lexical unit relations are edges.
@@ -103,50 +77,22 @@ class DBToGraphMapper:
         """
         self.logger.info("Creating lexical unit graph")
 
-        # Get lexical units
         lexical_units = self.polish_wordnet.get_lexical_units(limit=limit)
         if lexical_units is None:
             raise ValueError("Lexical units data is None")
 
-        # Get lexical unit relations
         lu_relations = self.polish_wordnet.get_lexical_relations(limit=limit)
         if lu_relations is None:
             raise ValueError("Lexical unit relations data is None")
 
-        # Get relation types for mapping
-        relation_types = self.polish_wordnet.get_relation_types(limit=limit)
-        if relation_types is None:
-            raise ValueError("Relation types data is None")
-
-        # Create relation type mapping
-        rel_type_map = {rt.ID: rt for rt in relation_types}
-
-        # Create graph
-        graph = nx.MultiDiGraph()
-
-        # Add lexical unit nodes
-        for lu in lexical_units:
-            graph.add_node(lu.ID, data=lu.to_dict())
-
-        # Add lexical unit relation edges
-        for relation in lu_relations:
-            rel_type = rel_type_map.get(relation.REL_ID)
-            edge_data = {
-                "relation_id": relation.REL_ID,
-                "relation_type": rel_type.name if rel_type else None,
-                "data": relation.to_dict(),
-            }
-            graph.add_edge(relation.PARENT_ID, relation.CHILD_ID, **edge_data)
-
-        self.logger.info(
-            f"Created lexical unit graph with {graph.number_of_nodes()} "
-            f"nodes and {graph.number_of_edges()} edges"
+        return self._prepare_graph(
+            to_nodes=lexical_units,
+            to_edges=lu_relations,
+            graph_type=self.G_LU,
+            limit=limit,
         )
 
-        self._graphs[self.G_LU] = graph
-        return graph
-
-    def get_synset_with_units_graph(
+    def convert_to_synset_with_units_graph(
         self, limit: Optional[int] = None
     ) -> nx.MultiDiGraph:
         """
@@ -189,16 +135,12 @@ class DBToGraphMapper:
         # Create mappings
         rel_type_map = {rt.ID: rt for rt in relation_types}
         lu_map = {lu.ID: lu for lu in lexical_units}
-
-        # Create synset to units mapping
         synset_units_map: Dict[int, List[LexicalUnit]] = {}
         for unit_synset in units_and_synsets:
             synset_id = unit_synset.SYN_ID
-            unit_id = unit_synset.LEX_ID
-
             if synset_id not in synset_units_map:
                 synset_units_map[synset_id] = []
-
+            unit_id = unit_synset.LEX_ID
             if unit_id in lu_map:
                 synset_units_map[synset_id].append(lu_map[unit_id])
 
@@ -211,7 +153,6 @@ class DBToGraphMapper:
             units_in_synset = synset_units_map.get(synset.ID, [])
             synset_data["units"] = [unit.to_dict() for unit in units_in_synset]
             graph.add_node(synset.ID, data=synset_data)
-
         # Add synset relation edges
         for relation in synset_relations:
             rel_type = rel_type_map.get(relation.REL_ID)
@@ -250,15 +191,14 @@ class DBToGraphMapper:
         Raises:
             ValueError: When an unknown graph type is encountered.
         """
-
         for g_type in self.GRAPH_TYPES:
             if g_type not in self._graphs:
                 if g_type == self.G_SYN:
-                    self.get_synset_graph(limit=limit)
+                    self.convert_to_synset_graph(limit=limit)
                 elif g_type == self.G_LU:
-                    self.get_lexical_unit_graph(limit=limit)
+                    self.convert_to_lexical_unit_graph(limit=limit)
                 elif g_type == self.G_UAS:
-                    self.get_synset_with_units_graph(limit=limit)
+                    self.convert_to_synset_with_units_graph(limit=limit)
                 else:
                     raise ValueError(f"Unknown graph type: {g_type}")
 
@@ -277,8 +217,74 @@ class DBToGraphMapper:
 
         self.logger.info(f"Storing graphs to directory: {graphs_dir}")
         for graph_type, graph in self._graphs.items():
-            file_path = os.path.join(graphs_dir, f"{graph_type}.pickle")
+            g_f_name = self.GRAPH_TYPES[graph_type]
+            file_path = os.path.join(graphs_dir, g_f_name)
             with open(file_path, "wb") as f:
                 pickle.dump(graph, f)
             self.logger.info(f"Saved graph '{graph_type}' to {file_path}")
         self.logger.info(f"Successfully stored {len(self._graphs)} graphs")
+
+    def _prepare_graph(
+        self,
+        to_nodes: List[Any],
+        to_edges: List[Any],
+        graph_type: str,
+        limit: Optional[int] = None,
+    ):
+        """
+        Create and populate a NetworkX MultiDiGraph from node and edge data.
+
+        This method constructs a directed multigraph by adding nodes and edges from
+        the provided data collections. It enriches edge data with relation type
+        information and stores the completed graph in the internal graphs cache.
+
+        Args:
+            to_nodes: Collection of node objects that will be added to the graph.
+                     Each node object must have an ID attribute and to_dict() method.
+            to_edges: Collection of edge/relation objects that define connections
+                     between nodes. Each edge must have PARENT_ID, CHILD_ID, REL_ID
+                     attributes and `to_dict()` method.
+            graph_type: Identifier for the type of graph being created.
+                        Used for logging and internal storage.
+            limit: Maximum number of relation types to retrieve for mapping.
+
+        Returns:
+            nx.MultiDiGraph: The constructed graph with all nodes and edges added.
+
+        Raises:
+            ValueError: If relation types data cannot be retrieved from the wordnet.
+
+        Side Effects:
+            - Stores the created graph in self._graphs[graph_type]
+            - Logs information about the graph creation process
+        """
+
+        relation_types = self.polish_wordnet.get_relation_types(limit=limit)
+        if relation_types is None:
+            raise ValueError("Relation types data is None")
+
+        # ID to Relation mapper
+        rel_type_map = {rt.ID: rt for rt in relation_types}
+
+        # Add nodes
+        graph = nx.MultiDiGraph()
+        for obj_n in to_nodes:
+            graph.add_node(obj_n.ID, data=obj_n.to_dict())
+
+        # Add edges
+        for relation in to_edges:
+            rel_type = rel_type_map.get(relation.REL_ID)
+            edge_data = {
+                "relation_id": relation.REL_ID,
+                "relation_type": rel_type.name if rel_type else None,
+                "data": relation.to_dict(),
+            }
+            graph.add_edge(relation.PARENT_ID, relation.CHILD_ID, **edge_data)
+
+        self.logger.info(
+            f"Created {graph_type} graph with {graph.number_of_nodes()} "
+            f"nodes and {graph.number_of_edges()} edges"
+        )
+
+        self._graphs[graph_type] = graph
+        return graph

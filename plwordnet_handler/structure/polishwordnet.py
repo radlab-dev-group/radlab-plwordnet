@@ -2,6 +2,7 @@ from typing import Optional
 
 from plwordnet_handler.api.plwordnet import PlWordnetAPI
 from plwordnet_handler.connectors.db_connector import PlWordnetAPIMySQLDbConnector
+from plwordnet_handler.connectors.nx_connector import PlWordnetAPINxConnector
 
 
 class PolishWordnet:
@@ -13,6 +14,7 @@ class PolishWordnet:
         self,
         connector=None,
         db_config_path: Optional[str] = None,
+        nx_graph_dir: Optional[str] = None,
         extract_wiki_articles: bool = False,
         use_memory_cache: bool = False,
         show_progress_bar: bool = False,
@@ -21,17 +23,25 @@ class PolishWordnet:
         Initialize PolishWordnet with PlWordnetAPI.
 
         Args:
+            connector: Optional connector instance (PlWordnetConnectorInterface)
             db_config_path: Optional path to a database configuration file.
+            nx_graph_dir: Optional path to NetworkX graphs directory.
             extract_wiki_articles: Whether to extract Wikipedia articles.
+            use_memory_cache: Whether to use memory cache.
+            show_progress_bar: Whether to show a progress bar.
         """
         # Create connector with provided or default configuration
         if connector is None:
-            if db_config_path:
+            if nx_graph_dir:
+                connector = PlWordnetAPINxConnector(nx_graph_dir=nx_graph_dir)
+            elif db_config_path:
                 connector = PlWordnetAPIMySQLDbConnector(
                     db_config_path=db_config_path
                 )
             else:
-                raise Exception("Connector or database config must be provided.")
+                raise Exception(
+                    "Connector, nx_graph_dir, or db_config_path must be provided."
+                )
 
         self.api = PlWordnetAPI(
             connector=connector,
