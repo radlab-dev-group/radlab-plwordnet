@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plwordnet-handler"
+version = "1.0.0"
+description = "Handler for Polish Wordnet (plWordNet) data processing and manipulation"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "RadLab Team", email = "pawel@radlab.dev"}
+]
+keywords = ["wordnet", "nlp", "polish", "linguistics", "graph", "database"]
+requires-python = ">=3.8"
+dependencies = [
+    "networkx",
+    "pandas",
+    "numpy",
+    "pymysql",
+    "requests",
+    "tqdm",
+    "colorama",
+]
+
+[project.scripts]
+plwordnet-cli = "apps.plwordnet_cli:main"
+download-plwordnet-resources = "apps.download_resources:main"
+
+#[tool.setuptools]
+# Import custom komend z build_hooks.py
+#cmdclass = "build_hooks:get_cmdclass"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["plwordnet_handler*", "apps*", "scripts*"]
+
+[tool.setuptools.package-data]
+"plwordnet_handler" = ["resources/**/*"]
